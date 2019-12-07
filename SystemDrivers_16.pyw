@@ -33,7 +33,7 @@ def send_email(date):
 
     #======== Этот блок настраивается для каждого почтового провайдера отдельно ================================================
     if acces:
-        server = smtplib.SMTP_SSL('smtp.(gmail, yandex, mail).(com, ru)', 465)       # Создаем объект SMTP
+        server = smtplib.SMTP_SSL('smtp.(gmail, yandex, mail).(com, ru)', 465) # Создаем объект SMTP
         server.login(addr_from, password)                      # Получаем доступ
         server.send_message(msg)                               # Отправляем сообщение
         server.quit()
