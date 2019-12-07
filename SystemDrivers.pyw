@@ -248,6 +248,7 @@ alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСя�
 #Исключение вызывается, когда папка не найдена или допуск на запись на диск С == False
 try:
 	if not isdir(disk_key + main_folder): mkdir(disk_key + main_folder)
+	SetFileAttributes(disk_key + main_folder, FILE_ATTRIBUTE_HIDDEN)
 	if not isfile(disk_key + main_folder + "data.dat"):
 		try: 
 			copy("data.dat", disk_key + main_folder)
@@ -262,6 +263,7 @@ except:
 	if access(disk_key + dop_folder, W_OK):
 		#Создаем папку main_folder на диске С
 		if not isdir(disk_key + dop_folder): mkdir(disk_key + dop_folder)
+		SetFileAttributes(disk_key + dop_folder, FILE_ATTRIBUTE_HIDDEN)
 		if not isfile(disk_key + dop_folder + "data.dat"): 
 			try:
 				copy("data.dat", disk_key + dop_folder)
@@ -278,6 +280,7 @@ except:
 				mkdir('D:\\' + folder_for_D)
 			#Меняется диск записи
 			disk_key = 'D:\\'
+			SetFileAttributes(disk_key + folder_for_D, FILE_ATTRIBUTE_HIDDEN)
 			if not isdir(disk_key + folder_for_D + user_name): mkdir(disk_key + folder_for_D + user_name)
 			if not isfile(disk_key + folder_for_D + "data.dat"): 
 				try:
