@@ -18,7 +18,7 @@ from pickle import dump, load
 def send_email(date):
     write_time_date_file_in_write_file('      - - - - Запуск службы отправки файла - - - -      ' + '\n')
     addr_from = "your email@(gmail, yandex, mail).(com, ru)"   # Отправитель
-    password  = "your password"                                # Пароль
+    password  = "your password"                                # Пароль от почты
 
     msg = MIMEMultipart()                                      # Создаем сообщение
     msg['From']    = addr_from                                 # Адресат
