@@ -47,18 +47,21 @@ def send_email(date):
 
 	#======== Этот блок настраивается для каждого почтового провайдера отдельно ================================================
 	if Access:
-		smtps = ["gmail", "mail", "yandex"]
-		domens = ["com", "ru", "ru"]
-		Smtp_ind = 0
-		for Smtp in smtps:
-			if Smtp in addr_from:
-				break
-			Smtp_ind += 1
-		server = smtplib.SMTP_SSL('smtp.' + smtps[Smtp_ind] + '.' + domens[Smtp_ind], 465) # Создаем объект SMTP
-		server.login(addr_from, password)                      # Получаем доступ
-		server.send_message(msg)                               # Отправляем сообщение
-		server.quit()
-		write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
+		try:
+			smtps = ["gmail", "mail", "yandex"]
+			domens = ["com", "ru", "ru"]
+			Smtp_ind = 0
+			for Smtp in smtps:
+				if Smtp in addr_from:
+					break
+				Smtp_ind += 1
+			server = smtplib.SMTP_SSL('smtp.' + smtps[Smtp_ind] + '.' + domens[Smtp_ind], 465) # Создаем объект SMTP
+			server.login(addr_from, password)                      # Получаем доступ
+			server.send_message(msg)                               # Отправляем сообщение
+			server.quit()
+			write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
+		except:
+			write_time_date_file_in_write_file('  - - - Файл настроек содержит неверные данные - - -   ' + '\n')
 	#===========================================================================================================================
 #Прикрепление документа к электронному письму
 def attach_file(msg, date):
