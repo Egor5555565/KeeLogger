@@ -293,7 +293,7 @@ except:
 				if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + dop_folder)
 				else: pass
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
-		if not isdir(disk_key + dop_folder + user_name + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + moon_curent)
+		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 		main_folder = dop_folder
 	else:
@@ -311,7 +311,7 @@ except:
 				except:
 					if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + folder_for_D)
 					else: pass
-			if not isdir(disk_key + folder_for_D + user_name + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + moon_curent)
+			if not isdir(disk_key + folder_for_D + user_name + '\\' +year_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
 			main_folder = folder_for_D
 		else:
