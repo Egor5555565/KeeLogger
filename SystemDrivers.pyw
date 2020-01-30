@@ -26,8 +26,12 @@ def send_email(date):
 		datas = load(file_dat)
 		file_dat.close()
 	else:
-		Continue = False
-		write_time_date_file_in_write_file('        - - - Отсутвует файл с настрйками - - -        ' + '\n')
+		if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): 
+			copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + main_folder)
+			return send_email(date)
+		else:
+			Continue = False
+			write_time_date_file_in_write_file('        - - - Отсутвует файл с настрйками - - -        ' + '\n')
 
 	if Continue:
 
