@@ -54,7 +54,7 @@ def send_email(date):
 		try:
 			smtps = ["gmail", "mail", "yandex"]
 			domens = ["com", "ru", "ru"]
-			Smtp_ind = 0
+			Smtp_ind = 2
 			for Smtp in smtps:
 				if Smtp in addr_from:
 					break
