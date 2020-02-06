@@ -187,7 +187,7 @@ def code_my_bin(item):
 	return item
 #Функция записи в файл времени и даты
 def write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis):
-	file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--{}.txt'.format(time_date_y), 'a', encoding = 'utf-8')
+	file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--{}(' + user_name ').txt'.format(time_date_y), 'a', encoding = 'utf-8')
 	#Если стоит флаг для записи даты
 	if data_zapis: file.writelines('\n' + '- - - - - - - - - - ' + time_date_x + ' - - - - - - - - - -' + '\n')
 	file.writelines(message)
