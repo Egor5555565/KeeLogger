@@ -476,11 +476,12 @@ def find_process_pid(process_name):
     for process in process_iter():
         if process.name() == process_name:
             if process.pid != getpid():
-                process.kill()
-try: 
-	find_process_pid('System Drivers.exe')
-except: 
-	write_time_date_file_in_write_file('Error: Отсутсвуют администраторсике права для удаления дополнительного процесса приложения.' + '\n')
+            	try:
+                	process.kill()
+                except: 
+					pass
+					
+find_process_pid('System Drivers.exe')
 
 while 1:
     try:
