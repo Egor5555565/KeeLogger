@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['SystemDrivers.pyw'],
-             pathex=['D:\\Flesh\\Git\\Keylogger\\Exe\\Keylogger'],
+             pathex=['C:\\Flesh\\Git\\Keylogger\\Exe\\Keylogger'],
              binaries=[],
              datas=[],
              hiddenimports=[],
