@@ -234,7 +234,7 @@ def write_time_date_file_in_write_file(message):
     write_time_date_file(time_date_curunt, time_for_name, disk_key, message, data_zapis)
 #==========(2) Для записи в файл с данными конец ==========
 #==========(2) Для записи в лог файл начало ==========
-#Создание лог файла, в случае если файла с настройками не будет найден нигде
+#Создание лог файла, в случае критической ошибки
 def crytical_log(message):
 	if not isdir('C:\\Logs'): 
 		mkdir('C:\\Logs')
@@ -243,9 +243,19 @@ def crytical_log(message):
 	log_crytical.writelines(strftime('%H : %M; %d %b') + ':\n')
 	log_crytical.writelines(message + '\n')
 	log_crytical.close()
+#Создание лог файла работы приложения
+def work_log(message):
+	if not isdir('C:\\Logs'): 
+		mkdir('C:\\Logs')
+		SetFileAttributes('C:\\Logs', FILE_ATTRIBUTE_HIDDEN)
+	log_work = open('C:\\Logs\\Work.txt', 'a', encoding = 'utf-8')
+	log_work.writelines(strftime('%H : %M; %d %b') + ':\n')
+	log_work.writelines(message + '\n')
+	log_work.close()
 #==========(2) Для записи в лог файл конец ==========
 #==========(1) Запись в файлы часть 1 конец ==========
 
+crytical_log("Block: filling in backup directories")
 #========== Заполнение бэкап папки поумолчанию начало ==========
 #Создание бэкап файлов для файл с насроками электронной почты и файла общих настроек
 if not isdir("C:\\ProgramData\\Backups Drivers"): 
